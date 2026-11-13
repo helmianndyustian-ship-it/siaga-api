@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAGA API - Sistem Informasi & Edukasi Kesiapsiagaan Kebakaran</title>
+    <style>
+        :root {
+            --merah: #D32F2F;
+            --merah-tua: #B71C1C;
+            --oranye: #F57C00;
+            --navy: #1A237E;
+            --navy-gelap: #0D134A;
+            --putih: #FFFFFF;
+            --abu-terang: #F8F9FA;
+            --abu-sedang: #E0E0E0;
+            --hitam: #212121;
+            --hijau: #2E7D32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--abu-terang);
+            color: var(--hitam);
+            line-height: 1.6;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* Header & Navigasi Responsif */
+        header {
+            background-color: var(--navy);
+            color: var(--putih);
+            padding: 0.8rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .logo-text h1 {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            color: var(--putih);
+            letter-spacing: 0.5px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .logo-text p {
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            color: var(--oranye);
+            font-weight: 600;
+        }
+
+        /* Tombol Menu Mobile */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--putih);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        /* Navigasi */
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--putih);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem 0.65rem;
+            border-radius: 6px;
+            transition: all 0.25s ease;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        nav a:hover, nav a.active {
+            background-color: var(--merah);
+            color: var(--putih);
+        }
+
+        /* Container Utama */
+        .container {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            width: 100%;
+        }
+
+        .section-page {
+            display: none;
+            background: var(--putih);
+            padding: clamp(1.2rem, 3vw, 2.5rem);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .section-page.active {
+            display: block;
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tombol Kembali */
+        .btn-back {
+            background-color: #E8EAF6;
+            color: var(--navy);
+            padding: 0.55rem 1.1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 6px;
+            margin-bottom: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: 1px solid #C5CAE9;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .btn-back:hover {
+            background-color: var(--navy);
+            color: var(--putih);
+            border-color: var(--navy);
+            transform: translateX(-4px);
+        }
+
+        .section-header {
+            border-bottom: 3px solid var(--oranye);
+            padding-bottom: 0.6rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            color: var(--navy);
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            line-height: 1.3;
+        }
+
+        /* Bagian Hero */
+        .hero {
+            text-align: center;
+            padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 3vw, 2rem);
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-gelap) 100%);
+            color: var(--putih);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(26, 35, 126, 0.2);
+            width: 100%;
+        }
+
+        .hero h2 {
+            font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+            color: var(--oranye);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .hero p {
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            max-width: 800px;
+            margin: 0 auto 1.8rem auto;
+            color: #E0E0E0;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 0.85rem 1.6rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            text-decoration: none;
+        }
+
+        .btn-primary { background-color: var(--merah); color: var(--putih); }
+        .btn-primary:hover { background-color: var(--merah-tua); transform: translateY(-2px); }
+        
+        .btn-secondary { background-color: var(--oranye); color: var(--putih); }
+        .btn-secondary:hover { background-color: #E65100; transform: translateY(-2px); }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1.2rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+
+        .card {
+            background: var(--abu-terang);
+            padding: clamp(1.2rem, 2.5vw, 1.8rem);
+            border-radius: 8px;
+            border-left: 5px solid var(--merah);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card h3 { color: var(--navy); margin-bottom: 0.8rem; font-size: clamp(1.1rem, 2.5vw, 1.25rem); display: flex; align-items: center; gap: 8px; }
+        .card h4 { color: var(--merah); margin: 0.8rem 0 0.4rem 0; font-size: 1.05rem; }
+        .card ul { margin-left: 1.2rem; }
+        .card li { margin-bottom: 0.4rem; }
+
+        .alert-box {
+            background-color: #FFEBEE;
+            border-left: 5px solid var(--merah);
+            padding: clamp(1rem, 2.5vw, 1.3rem);
+            margin: 1.2rem 0;
+            border-radius: 6px;
+            color: #C62828;
+            word-wrap: break-word;
+        }
+
+        .alert-warning { background-color: #FFF3E0; border-left-color: var(--oranye); color: #E65100; }
+        .alert-info { background-color: #E8EAF6; border-left-color: var(--navy); color: var(--navy); }
+
+        /* Simulasi */
+        .simulasi-box {
+            background: var(--abu-terang);
+            padding: clamp(1.2rem, 2.5vw, 1.8rem);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--abu-sedang);
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: clamp(0.85rem, 2vw, 1.1rem);
+            margin: 0.6rem 0;
+            background: var(--putih);
+            border: 2px solid var(--abu-sedang);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 1.8vw, 0.98rem);
+            font-weight: 500;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+            min-height: 48px;
+        }
+
+        .option-btn:hover { border-color: var(--navy); background-color: #E8EAF6; }
+
+        /* Kuis */
+        .quiz-card {
+            background: var(--abu-terang);
+            padding: clamp(1rem, 2.5vw, 1.5rem);
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            border-left: 4px solid var(--navy);
+        }
+
+        .quiz-question { font-weight: 700; font-size: clamp(0.95rem, 2vw, 1.05rem); color: var(--navy); margin-bottom: 0.8rem; }
+        .quiz-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.75rem 0.9rem;
+            margin: 0.4rem 0;
+            background: var(--putih);
+            border: 1px solid #CCC;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            min-height: 44px;
+            font-size: 0.95rem;
+        }
+        .quiz-option:hover { background: #F1F3F9; }
+        .quiz-option input[type="radio"] { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--merah); }
+
+        /* Checklist */
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 0.9rem 1.1rem;
+            background: var(--abu-terang);
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--abu-sedang);
+            transition: background 0.2s;
+            min-height: 48px;
+            font-size: 0.95rem;
+        }
+        .checklist-item:hover { background: #E8EAF6; }
+        .checklist-box { width: 22px; height: 22px; cursor: pointer; accent-color: var(--merah); flex-shrink: 0; margin-top: 2px; }
+
+        .progress-bar-container { background: var(--abu-sedang); border-radius: 12px; height: 22px; margin: 1.2rem 0; overflow: hidden; width: 100%; }
+        .progress-bar { background: linear-gradient(to right, var(--oranye), var(--merah)); height: 100%; width: 0%; transition: width 0.4s ease; }
+
+        /* Footer */
+        footer {
+            background-color: var(--navy-gelap);
+            color: var(--putih);
+            padding: clamp(2rem, 5vw, 3rem) 1.5rem 1.5rem 1.5rem;
+            margin-top: 3rem;
+            width: 100%;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 2rem;
+            padding-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-section h4 { color: var(--oranye); margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .footer-section ul { list-style: none; }
+        .footer-section li { margin-bottom: 0.4rem; font-size: 0.88rem; color: #B0BEC5; }
+        .footer-bottom { text-align: center; padding-top: 1.2rem; font-size: 0.83rem; color: #90A4AE; }
+
+        /* Responsive Mobile Drawer */
+        @media (max-width: 992px) {
+            .menu-toggle { display: flex; }
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background-color: var(--navy-gelap);
+                padding: 5rem 1.5rem 2rem 1.5rem;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+                transition: right 0.35s ease-in-out;
+                z-index: 1000;
+                align-items: flex-start;
+                overflow-y: auto;
+            }
+            nav.show { right: 0; }
+            nav ul { flex-direction: column; width: 100%; gap: 6px; }
+            nav a { width: 100%; padding: 0.8rem 1rem; font-size: 1rem; border-radius: 6px; }
+
+            .nav-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .nav-overlay.show { display: block; }
+
+            .menu-toggle.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+            .menu-toggle.active span:nth-child(2) { opacity: 0; }
+            .menu-toggle.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+        }
+
+        @media (max-width: 480px) {
+            header { padding: 0.7rem 1rem; }
+            .btn-container { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay Gelap Menu Mobile -->
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMenu()"></div>
+
+    <!-- Header & Navigasi -->
+    <header>
+        <div class="logo-area" onclick="showPage('home')">
+            <span class="logo-icon">🔥</span>
+            <div class="logo-text">
+                <h1>SIAGA API</h1>
+                <p>PjBL Keperawatan D3</p>
+            </div>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()" aria-label="Buka Menu Navigasi">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav id="mainNav">
+            <ul>
+                <li><a href="#" class="nav-link active" onclick="showPage('home')">Beranda</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('awareness')">Kenali Api</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('prevention')">Pencegahan</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('response')">Tanggap Darurat</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('firstaid')">Pertolongan Pertama</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('simulation')">Simulasi</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('quiz')">Kuis</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('checklist')">Daftar Periksa</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('about')">Tentang Kami</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- 1. BERANDA -->
+        <div id="home" class="section-page active">
+            <div class="hero">
+                <h2>"Kenali Risikonya, Cegah Kebakarannya, Selamatkan Nyawanya."</h2>
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="showPage('awareness')">📖 Mulai Belajar</button>
+                    <button class="btn btn-secondary" onclick="showPage('quiz')">📝 Uji Pengetahuanmu</button>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>🔍 Fakta & Risiko Kebakaran di Sekitar Kita</h2>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <h3>⚡ Bahaya Utama Kelistrikan</h3>
+                    <p>Lebih dari <strong>65% kejadian kebakaran</strong> di pemukiman padat penduduk dipicu oleh korsleting listrik akibat beban pemakaian yang melebihi kapasitas (overload).</p>
+                </div>
+                <div class="card">
+                    <h3>⏱️ Cepatnya Perambatan Api</h3>
+                    <p>Hanya dalam waktu kurang dari <strong>3 menit</strong>, kobaran api kecil di ruang tertutup dapat berkembang memicu suhu ekstrem hingga mencapai 600°C.</p>
+                </div>
+                <div class="card">
+                    <h3>🩺 Peran Krusial Keperawatan</h3>
+                    <p>Penanganan awal pada <strong>15 menit pertama</strong> sangat menentukan untuk mencegah keparahan luka bakar pada jaringan kulit serta risiko komplikasi infeksi.</p>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2.2rem;">
+                <h2>📚 Pilihan Modul Belajar</h2>
+            </div>
+            
+            <div class="grid-4">
+                <div class="card" onclick="showPage('awareness')" style="cursor:pointer;">
+                    <h3>🔥 Karakteristik Api</h3>
+                    <p>Pahami konsep segitiga api, penggolongan kelas kebakaran, serta dampaknya bagi tubuh.</p>
+                </div>
+                <div class="card" onclick="showPage('prevention')" style="cursor:pointer;">
+                    <h3>🛡️ Langkah Pencegahan</h3>
+                    <p>Panduan aman instalasi dapur, kelistrikan rumah, dan cara memakai APAR dengan metode P.A.S.S.</p>
+                </div>
+                <div class="card" onclick="showPage('response')" style="cursor:pointer;">
+                    <h3>🚨 Tindakan Tanggap Darurat</h3>
+                    <p>Protokol evakuasi aman saat terjadi kepulan asap tebal serta daftar nomor darurat resmi.</p>
+                </div>
+                <div class="card" onclick="showPage('firstaid')" style="cursor:pointer;">
+                    <h3>🩹 Pertolongan Pertama Medis</h3>
+                    <p>Penanganan klinis awal luka bakar, penanganan inhalasi asap, serta tanda bahaya gawat darurat.</p>
+                </div>
+            </div>
+
+            <div class="alert-box alert-info" style="margin-top: 2.2rem; text-align: center;">
+                <h3 style="margin-bottom:0.4rem;">📢 Kesiapsiagaan Adalah Kunci Keselamatan Bersama</h3>
+                <p>Tingkatkan kewaspadaan Anda dan keluarga hari ini. Coba simulasi kasus interaktif kami untuk melatih refleks tanggap darurat!</p>
+            </div>
+        </div>
+
+        <!-- 2. KENALI API -->
+        <div id="awareness" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>🔥 Mengenal Karakteristik & Bahaya Api</h2>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Apa itu Kebakaran?</h3>
+                    <p>Kebakaran adalah reaksi pembakaran tidak terkendali yang menghasilkan panas dan cahaya, yang berpotensi besar mengancam keselamatan jiwa manusia, merusak harta benda, serta merusak lingkungan sekitar.</p>
+                </div>
+                <div class="card">
+                    <h3>Unsur Segitiga Api (Triangle of Fire)</h3>
+                    <p>Api hanya bisa muncul dan menyala jika 3 unsur utama ini saling bertemu:</p>
+                    <ul>
+                        <li><strong>Bahan Bakar:</strong> Segala benda yang mudah terbakar (kayu, kertas, bahan bakar cair, gas LPG).</li>
+                        <li><strong>Oksigen:</strong> Tersedia di udara bebas (minimal kadar 16% untuk menyokong nyala api).</li>
+                        <li><strong>Panas:</strong> Sumber suhu pemicu awal dari percikan listrik, gesekan, atau api terbuka.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2>🏷️ Penggolongan Kelas Kebakaran</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Kelas A (Benda Padat Biasa)</h3>
+                    <p>Kebakaran yang melibatkan bahan padat seperti kayu, kertas, kain, plastik, dan karet. Cara padamkan: Air, busa (foam), atau serbuk kimia kering.</p>
+                </div>
+                <div class="card">
+                    <h3>Kelas B (Bahan Cair & Gas)</h3>
+                    <p>Kebakaran yang melibatkan bensin, solar, tiner, minyak, alkohol, dan gas LPG. Cara padamkan: Busa, gas CO2, atau serbuk kimia kering. <strong>Jangan disiram air!</strong></p>
+                </div>
+                <div class="card">
+                    <h3>Kelas C (Instalasi Listrik)</h3>
+                    <p>Kebakaran yang bersumber dari korsleting alat elektronik, stop kontak, atau panel listrik. Cara padamkan: Gas CO2 atau serbuk kimia non-konduktif. <strong>Jangan disiram air!</strong></p>
+                </div>
+                <div class="card">
+                    <h3>Kelas K (Minyak Masak & Lemak Dapur)</h3>
+                    <p>Kebakaran akibat minyak goreng bersuhu tinggi di kompor. Cara padamkan: Alat pemadam khusus bahan kimia cair (wet chemical) atau ditutup kain basah tebal.</p>
+                </div>
+            </div>
+
+            <div class="alert-box" style="margin-top: 2rem;">
+                <h3>⚠️ Dampak Buruk Kebakaran bagi Tubuh</h3>
+                <p>Selain kerugian material, insiden kebakaran berdampak serius pada kesehatan:</p>
+                <ul style="margin-left: 1.2rem; margin-top: 0.5rem;">
+                    <li><strong>Keracunan Gas Inhalasi:</strong> Terhirupnya gas Karbon Monoksida (CO) dan Sianida yang memicu kekurangan oksigen seluler.</li>
+                    <li><strong>Luka Bakar Termal:</strong> Kerusakan jaringan kulit yang berisiko memicu dehidrasi berat hingga syok.</li>
+                    <li><strong>Trauma Psikologis:</strong> Risiko stres pascatrauma (PTSD) bagi korban selamat.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3. PENCEGAHAN -->
+        <div id="prevention" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>🛡️ Langkah Pencegahan Kebakaran</h2>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>⚡ Pencegahan Korsleting Listrik di Rumah</h3>
+                    <ul>
+                        <li>Hindari mencolok banyak steker bertumpuk pada satu stop kontak (beban berlebih).</li>
+                        <li>Pastikan menggunakan peralatan listrik yang sudah berstandar resmi (SNI).</li>
+                        <li>Segera ganti kabel yang tampak terkelupas, rapuh, atau menunjukkan bekas gosong.</li>
+                        <li>Cabut kepala pengisi daya (charger) ponsel jika sudah selesai digunakan.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🍳 Pencegahan Kebakaran di Dapur</h3>
+                    <ul>
+                        <li>Pastikan area dapur memiliki ventilasi udara yang baik agar gas tidak mengendap.</li>
+                        <li>Periksa selang dan regulator tabung gas secara rutin (pastikan klem terpasang erat).</li>
+                        <li>Jangan pernah meninggalkan masakan di atas kompor menyala tanpa pengawasan.</li>
+                        <li>Jauhkan benda mudah terbakar seperti kain lap, tisu, atau botol minyak dari kompor.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2>🧯 Cara Menggunakan APAR (Metode P.A.S.S)</h2>
+            </div>
+
+            <div class="grid-4">
+                <div class="card" style="border-left-color: var(--navy);">
+                    <h3>1. Pull (Tarik)</h3>
+                    <p><strong>Tarik pin pengaman</strong> pada bagian atas tabung APAR hingga segelnya terlepas.</p>
+                </div>
+                <div class="card" style="border-left-color: var(--navy);">
+                    <h3>2. Aim (Arahkan)</h3>
+                    <p><strong>Arahkan selang</strong> tepat mengarah ke bagian dasar titik sumber api, bukan ke lidah apinya.</p>
+                </div>
+                <div class="card" style="border-left-color: var(--navy);">
+                    <h3>3. Squeeze (Tekan)</h3>
+                    <p><strong>Tekan tuas pegangan</strong> secara mantap untuk menyemprotkan media pemadam.</p>
+                </div>
+                <div class="card" style="border-left-color: var(--navy);">
+                    <h3>4. Sweep (Sapukan)</h3>
+                    <p><strong>Sapukan selang</strong> secara perlahan dari kiri ke kanan mengikuti arah angin.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TANGGAP DARURAT -->
+        <div id="response" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>🚨 Tindakan Saat Menghadapi Darurat Kebakaran</h2>
+            </div>
+
+            <div class="alert-box alert-warning">
+                <h2 style="font-size: clamp(1.1rem, 2.5vw, 1.4rem);">📞 NOMOR LAYANAN DARURAT RESMI INDONESIA:</h2>
+                <p style="font-size: clamp(1.1rem, 2.5vw, 1.3rem); font-weight: 800; margin-top: 0.5rem; line-height: 1.6;">
+                    • Pemadam Kebakaran (Damkar): <span style="color:var(--merah);">113</span> atau <span style="color:var(--merah);">1131</span><br>
+                    • Panggilan Darurat Terpadu: <span style="color:var(--merah);">112</span><br>
+                    • Ambulans / Kemenkes: <span style="color:var(--merah);">119</span>
+                </p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>✅ Langkah Cepat Saat Kebakaran</h3>
+                    <ul>
+                        <li><strong>Tetap Tenang:</strong> Hindari panik berlebihan agar Anda dapat mengambil keputusan dengan benar.</li>
+                        <li><strong>Beri Tanda:</strong> Berteriaklah "Kebakaran!" atau bunyikan alarm darurat gedung terdekat.</li>
+                        <li><strong>Padamkan Jika Mampu:</strong> Gunakan APAR atau karung basah jika api masih kecil dan terkendali.</li>
+                        <li><strong>Segera Evakuasi:</strong> Jika api cepat membesar, segera keluar ruangan tanpa sempat memikirkan barang berharga.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🏃 Tips Selamat dari Kepulan Asap</h3>
+                    <ul>
+                        <li><strong>Merangkak Rendah:</strong> Udara bersih dan oksigen tersedia di bagian bawah (30-60 cm dari lantai). Asap beracun selalu membumbung ke atas.</li>
+                        <li><strong>Lindungi Pernapasan:</strong> Gunakan kain atau handuk basah untuk menutupi hidung dan mulut.</li>
+                        <li><strong>Cek Suhu Pintu:</strong> Sentuh gagang pintu dengan punggung tangan. Jika terasa panas, jangan dibuka!</li>
+                        <li><strong>Gunakan Tangga Darurat:</strong> <strong>DILARANG</strong> menggunakan lift saat terjadi kebakaran!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2>❌ Hal yang Pantang Dilakukan</h2>
+            </div>
+            <div class="card" style="border-left-color: var(--merah-tua);">
+                <ul>
+                    <li>❌ Jangan pernah kembali masuk ke dalam bangunan terbakar demi mengambil barang.</li>
+                    <li>❌ Jangan bersembunyi di dalam kamar mandi atau di bawah tempat tidur tanpa akses keluar.</li>
+                    <li>❌ Jangan berlari jika pakaian Anda tersambar api (Segera lakukan teknik <strong>STOP, DROP, and ROLL</strong> / Berhenti, Rebahan, Berguling).</li>
+                    <li>❌ Jangan menyiram minyak goreng yang terbakar menggunakan air keran biasa.</li>
+                </ul>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2>🎥 Penanganan Awal Korsleting Listrik</h2>
+            </div>
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <iframe src="https://www.youtube.com/embed/3spDBYdTD8s" title="Penanganan Awal Korsleting Listrik" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+        </div>
+
+        <!-- 5. PERTOLONGAN PERTAMA -->
+        <div id="firstaid" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>🩺 Pertolongan Pertama & Perawatan Luka Bakar</h2>
+            </div>
+
+            <div class="alert-box alert-warning">
+                <strong>⚠️ Catatan Medis:</strong> Informasi ini ditujukan sebagai edukasi pertolongan pertama dasar dan tidak menggantikan penanganan medis profesional dari dokter atau tenaga medis di fasilitas kesehatan.
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>💧 Penanganan Pertama Luka Bakar</h3>
+                    <ul>
+                        <li><strong>Pendinginan Air Mengalir:</strong> Guyur area luka dengan air bersih suhu biasa (bukan air es) selama <strong>15–20 menit</strong> untuk meredakan panas jaringan kulit.</li>
+                        <li><strong>Lepas Perhiasan:</strong> Lepaskan cincin, jam tangan, atau pakaian ketat di sekitar luka mulai membengkak.</li>
+                        <li><strong>Tutup Longgar:</strong> Lindungi luka dengan kassa steril atau plastik bersih non-lengket.</li>
+                        <li><strong>❌ JANGAN LAKUKAN:</strong> Mengoleskan pasta gigi, kecap, mentega, atau es batu ke atas luka karena berisiko memicu infeksi sekunder!</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🫁 Pertolongan Korban Hirup Asap</h3>
+                    <ul>
+                        <li><strong>Pindahkan Korban:</strong> Bawa korban segera keluar dari area berasap ke tempat terbuka dengan udara segar.</li>
+                        <li><strong>Posisi Setengah Duduk (Semi-Fowler):</strong> Bantu korban duduk bersandar untuk memudahkan paru-paru bernapas lega.</li>
+                        <li><strong>Longgarkan Pakaian:</strong> Buka kancing kerah atau ikat pinggang yang terasa menekan dada.</li>
+                        <li><strong>Pantau Kesadaran:</strong> Jika korban tidak sadar namun masih bernapas, miringkan tubuhnya ke posisi mantap (recovery position).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h2>🚨 Tanda Darurat (Segera ke IGD Rumah Sakit)</h2>
+            </div>
+            <div class="card" style="border-left-color: var(--merah);">
+                <p>Segera hubungi ambulans (119/112) atau bawa korban ke Instalasi Gawat Darurat terdekat apabila:</p>
+                <ul style="margin-top: 0.5rem; margin-left: 1.2rem;">
+                    <li>🔴 Luka bakar mengenai area sensitif seperti <strong>wajah, leher, tangan, alat kelamin, atau melingkar di sendi</strong>.</li>
+                    <li>🔴 Luas luka bakar melebihi 10% permukaan tubuh atau tampak luka bakar derajat dalam (pucat/hangus).</li>
+                    <li>🔴 Ada tanda gangguan napas: suara serak/mengorok, bulu hidung hangus terbakar, atau batuk berdahak hitam jelaga.</li>
+                    <li>🔴 Korban mengalami penurunan kesadaran, pusing hebat, atau kejang pasca kejadian.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 6. SIMULASI -->
+        <div id="simulation" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>🎮 Simulasi Kasus Tanggap Darurat</h2>
+            </div>
+            <p style="margin-bottom: 1.5rem;">Uji kemampuan dan refleks Anda dalam menghadapi skenario darurat berikut dengan memilih keputusan yang paling tepat:</p>
+
+            <!-- Skenario 1 -->
+            <div class="simulasi-box">
+                <h3 style="color:var(--navy); margin-bottom: 0.4rem;">Skenario 1: Minyak Goreng Terbakar di Dapur</h3>
+                <p style="margin-bottom: 1rem; color: #555;">Anda sedang menggoreng makanan, tiba-tiba minyak di wajan tersulut api besar. Apa langkah pertama yang paling benar untuk Anda lakukan?</p>
+
+                <button class="option-btn" onclick="checkSimulasi(1, false, 'Menyiram air pada minyak panas justru memicu ledakan uap (boilover) seketika dan menyemburkan api ke mana-mana!')">A. Mengambil gayung berisi air lalu menyiramkannya langsung ke wajan.</button>
+                <button class="option-btn" onclick="checkSimulasi(1, true, 'Tepat! Mematikan kompor menghentikan sumber panas, dan menutup wajan dengan kain basah memutus pasokan oksigen (teknik smothering) sehingga api padam dengan aman.')">B. Mematikan kompor, lalu menutup wajan rapat-rapat menggunakan kain basah tebal atau tutup panci logam.</button>
+                <button class="option-btn" onclick="checkSimulasi(1, false, 'Meniup api di wajan bersuhu tinggi sangat berbahaya karena dapat menyemburkan percikan api ke wajah Anda.')">C. Menarik napas dalam-dalam lalu meniup api tersebut sekuat tenaga.</button>
+
+                <div id="hasil-simulasi-1"></div>
+            </div>
+
+            <!-- Skenario 2 -->
+            <div class="simulasi-box">
+                <h3 style="color:var(--navy); margin-bottom: 0.4rem;">Skenario 2: Evakuasi Gedung Berasap Tebal</h3>
+                <p style="margin-bottom: 1rem; color: #555;">Sirine kebakaran berbunyi di lantai 3 kampus Anda. Saat membuka pintu, lorong sudah dipenuhi asap hitam tebal. Cara evakuasi yang paling benar adalah...</p>
+
+                <button class="option-btn" onclick="checkSimulasi(2, false, 'Berlari tegak di tengah asap tebal membuat Anda menghirup banyak gas beracun Karbon Monoksida yang langsung memicu pingsan.')">A. Berlari tegak secepat mungkin menembus asap menuju tangga darurat.</button>
+                <button class="option-btn" onclick="checkSimulasi(2, false, 'Menggunakan lift saat kebakaran sangat dilarang karena risiko mati listrik mendadak yang membuat Anda terjebak.')">B. Langsung masuk ke dalam lift agar cepat sampai lantai dasar.</button>
+                <button class="option-btn" onclick="checkSimulasi(2, true, 'Benar sekali! Kain basah membantu menyaring asap, dan merangkak di bawah memanfaatkan lapisan udara bersih dekat lantai.')">C. Menutup hidung dengan kain basah, lalu merangkak rendah menyusuri koridor menuju tangga darurat.</button>
+
+                <div id="hasil-simulasi-2"></div>
+            </div>
+
+            <!-- Skenario 3 -->
+            <div class="simulasi-box">
+                <h3 style="color:var(--navy); margin-bottom: 0.4rem;">Skenario 3: Pakaian Teman Tersambar Api</h3>
+                <p style="margin-bottom: 1rem; color: #555;">Ujung baju teman Anda tersambar api saat praktikum dan ia mulai panik berlari. Instruksi apa yang harus Anda berikan padanya?</p>
+
+                <button class="option-btn" onclick="checkSimulasi(3, true, 'Hebat! Teknik STOP, DROP, and ROLL efektif memutus suplai oksigen dan memadamkan api di lantai tanpa mencederai saluran napas.')">A. Berteriak menyuruhnya Berhenti (STOP), Rebah ke lantai (DROP), dan Berguling-guling (ROLL).</button>
+                <button class="option-btn" onclick="checkSimulasi(3, false, 'Berlari justru membuat api semakin membesar karena suplai oksigen bertambah cepat seperti tertiup angin.')">B. Menyuruhnya berlari kencang menuju keran air terdekat.</button>
+                <button class="option-btn" onclick="checkSimulasi(3, false, 'Menepuk baju dengan tangan kosong berisiko melukai tangan Anda sendiri dan memperluas kobaran.')">C. Menepuk-nepuk baju yang terbakar menggunakan telapak tangan kosong.</button>
+
+                <div id="hasil-simulasi-3"></div>
+            </div>
+        </div>
+
+        <!-- 7. KUIS -->
+        <div id="quiz" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>📝 Kuis Uji Pemahaman Keselamatan</h2>
+            </div>
+            <p style="margin-bottom: 1.5rem;">Jawab 10 pertanyaan berikut untuk menguji sejauh mana pemahaman kesiapsiagaan Anda. Hasil nilai dan pembahasannya akan langsung muncul di akhir.</p>
+
+            <form id="quizForm">
+                <div class="quiz-card">
+                    <div class="quiz-question">1. Apa penyebab utama yang paling sering memicu kejadian kebakaran di kawasan pemukiman?</div>
+                    <label class="quiz-option"><input type="radio" name="q1" value="A"> <span>A. Pembakaran tumpukan sampah kering</span></label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="B"> <span>B. Korsleting arus pendek listrik & kebocoran gas</span></label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="C"> <span>C. Gesekan antar dahan pohon di musim kemarau</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">2. Tiga elemen penting pembentuk Segitiga Api (Triangle of Fire) adalah...</div>
+                    <label class="quiz-option"><input type="radio" name="q2" value="A"> <span>A. Kayu, Bensin, dan Udara</span></label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="B"> <span>B. Oksigen, Sumber Panas, dan Bahan Bakar</span></label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="C"> <span>C. Asap, Karbon Monoksida, dan Air</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">3. Kepanjangan dari singkatan metode P.A.S.S dalam penggunaan APAR adalah...</div>
+                    <label class="quiz-option"><input type="radio" name="q3" value="A"> <span>A. Pull, Aim, Squeeze, Sweep</span></label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="B"> <span>B. Push, Aim, Shoot, Stop</span></label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="C"> <span>C. Press, Action, Spray, Sweep</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">4. Kebakaran yang bersumber dari kegagalan instalasi peralatan listrik bertegangan masuk dalam golongan...</div>
+                    <label class="quiz-option"><input type="radio" name="q4" value="A"> <span>A. Kelas A</span></label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="B"> <span>B. Kelas B</span></label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="C"> <span>C. Kelas C</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">5. Tindakan pertolongan pertama medis yang PALING TEPAT pada kasus luka bakar ringan adalah...</div>
+                    <label class="quiz-option"><input type="radio" name="q5" value="A"> <span>A. Mengoleskan pasta gigi atau kecap pada area luka</span></label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="B"> <span>B. Mengalirkan air bersih biasa pada luka selama 15–20 menit</span></label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="C"> <span>C. Menempelkan es batu langsung di atas permukaan luka</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">6. Apa tanda klinis darurat (Red Flag) pada korban hirup asap yang wajib segera dibawa ke IGD?</div>
+                    <label class="quiz-option"><input type="radio" name="q6" value="A"> <span>A. Batuk mengeluarkan dahak atau lendir bercampur warna hitam jelaga</span></label>
+                    <label class="quiz-option"><input type="radio" name="q6" value="B"> <span>B. Merasa haus pada bagian tenggorokan</span></label>
+                    <label class="quiz-option"><input type="radio" name="q6" value="C"> <span>C. Kulit sekitar wajah sedikit kemerahan karena hawa hangat</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">7. Alasan utama kita disarankan merangkak saat melarikan diri dari ruangan berasap tebal adalah...</div>
+                    <label class="quiz-option"><input type="radio" name="q7" value="A"> <span>A. Agar tidak terlihat oleh lidah api</span></label>
+                    <label class="quiz-option"><input type="radio" name="q7" value="B"> <span>B. Lapisan udara bersih dan oksigen yang layak berada di dekat lantai</span></label>
+                    <label class="quiz-option"><input type="radio" name="q7" value="C"> <span>C. Supaya gerakan lari menjadi lebih cepat</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">8. Berapakah nomor telepon panggilan darurat resmi untuk Pemadam Kebakaran (Damkar)?</div>
+                    <label class="quiz-option"><input type="radio" name="q8" value="A"> <span>A. 110</span></label>
+                    <label class="quiz-option"><input type="radio" name="q8" value="B"> <span>B. 113</span></label>
+                    <label class="quiz-option"><input type="radio" name="q8" value="C"> <span>C. 119</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">9. Apa tujuan utama memposisikan korban hirup asap dalam posisi Semi-Fowler (setengah duduk)?</div>
+                    <label class="quiz-option"><input type="radio" name="q9" value="A"> <span>A. Membantu ekspansi paru-paru dan meringankan keluhan sesak napas</span></label>
+                    <label class="quiz-option"><input type="radio" name="q9" value="B"> <span>B. Memudahkan korban untuk beristirahat dan tidur</span></label>
+                    <label class="quiz-option"><input type="radio" name="q9" value="C"> <span>C. Mencegah timbulnya luka di area punggung</span></label>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">10. Jika pakaian Anda tiba-tiba tersambar api, tindakan penyelamatan utama yang harus dilakukan adalah...</div>
+                    <label class="quiz-option"><input type="radio" name="q10" value="A"> <span>A. Berlari kencang mencari sumber air</span></label>
+                    <label class="quiz-option"><input type="radio" name="q10" value="B"> <span>B. Berhenti, Rebahkan diri ke lantai, dan Berguling-guling (STOP, DROP, and ROLL)</span></label>
+                    <label class="quiz-option"><input type="radio" name="q10" value="C"> <span>C. Melepas baju dengan cara ditarik paksa ke atas kepala</span></label>
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="submitQuiz()" style="margin-top: 1rem; width: 100%;">📥 Periksa & Tampilkan Hasil Kuis</button>
+            </form>
+
+            <div id="quiz-result" class="card" style="display:none; margin-top: 2rem; border-left-color: var(--navy);"></div>
+        </div>
+
+        <!-- 8. DAFTAR PERIKSA -->
+        <div id="checklist" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>📋 Daftar Periksa Kesiapsiagaan Rumah</h2>
+            </div>
+            <p style="margin-bottom: 1.5rem;">Centang item mitigasi berikut yang sudah tersedia atau Anda terapkan di tempat tinggal Anda untuk mengukur tingkat kesiapsiagaan kebakaran:</p>
+
+            <div class="card">
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>1. Mengetahui letak jalur evakuasi dan rute keluar darurat di bangunan/lingkungan sekitar.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>2. Mengetahui posisi keberadaan APAR terdekat yang dalam kondisi siap pakai.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>3. Mengetahui lokasi Titik Kumpul (Assembly Point) di area luar yang aman.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>4. Menyimpan nomor darurat penting seperti Damkar (113) dan Ambulans (119/112) di ponsel.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>5. Memastikan instalasi kabel listrik di rumah rapi dan bebas dari steker bertumpuk.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>6. Memeriksa kondisi selang dan regulator gas secara berkala agar bebas dari kebocoran.</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox" class="checklist-box" onchange="updateChecklist()">
+                    <span>7. Menyiapkan Kotak P3K di rumah yang berisi kassa steril, perban, dan perlengkapan luka bakar.</span>
+                </label>
+
+                <div style="margin-top: 2rem;">
+                    <h3 id="progress-text" style="color: var(--navy); font-size: clamp(1.1rem, 2.5vw, 1.3rem);">Tingkat Kesiapsiagaan Anda: 0%</h3>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar-fill" class="progress-bar"></div>
+                    </div>
+                    <p id="progress-desc" style="margin-top: 0.5rem; font-weight: 600; color: #666; font-size: 0.95rem;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. TENTANG KAMI -->
+        <div id="about" class="section-page">
+            <button class="btn-back" onclick="goBack()">⬅️ Kembali</button>
+            <div class="section-header">
+                <h2>ℹ️ Tentang Kami & Profil Proyek</h2>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Mengenal SIAGA API</h3>
+                    <p><strong>SIAGA API (Sistem Informasi dan Edukasi Kesiapsiagaan Kebakaran)</strong> adalah platform web edukasi kesehatan masyarakat dan mitigasi bencana. Website ini dikhususkan untuk mengedukasi masyarakat luas agar memiliki pengetahuan, kesadaran, serta keterampilan dasar dalam mencegah dan merespons ancaman kebakaran.</p>
+                </div>
+                <div class="card">
+                    <h3>Latar Belakang Proyek</h3>
+                    <p>Website ini dikembangkan sebagai karya luaran Proyek Pembelajaran Berbasis Proyek (Project Based Learning / PjBL) Mahasiswa Diploma Tiga (D3) Keperawatan, yang memadukan ilmu Keperawatan Gawat Darurat & Komunitas dengan pemanfaatan teknologi digital.</p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.8rem; border-left-color: var(--oranye);">
+                <h3>🎯 Misi & Manfaat untuk Masyarakat</h3>
+                <ul style="margin-top: 0.5rem;">
+                    <li><strong>Pencegahan Dini:</strong> Menekan angka kejadian kebakaran melalui edukasi keselamatan kelistrikan dan rumah tangga.</li>
+                    <li><strong>Penanganan Tepat:</strong> Mencegah kesalahan penanganan pertolongan pertama luka bakar dan inhalasi asap yang dapat memperparah kondisi korban.</li>
+                    <li><strong>Media Interaktif:</strong> Menyediakan sarana latihan simulasi praktis berbasis kasus nyata yang mudah diakses siapa saja.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div> <!-- End Container -->
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🔥 SIAGA API</h4>
+                <p style="font-size: 0.88rem; color: #B0BEC5;">Sistem Informasi dan Edukasi Kesiapsiagaan Kebakaran. Proyek PjBL Mahasiswa D3 Keperawatan.</p>
+            </div>
+            <div class="footer-section">
+                <h4>📚 Referensi Edukasi</h4>
+                <ul>
+                    <li>• Kementerian Kesehatan Republik Indonesia (Kemenkes RI)</li>
+                    <li>• Badan Nasional Penanggulangan Bencana (BNPB)</li>
+                    <li>• Dinas Pemadam Kebakaran dan Penyelamatan</li>
+                    <li>• World Health Organization (WHO) - Burn Prevention</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>🚨 Kontak Darurat</h4>
+                <ul>
+                    <li>• Pemadam Kebakaran: 113 / 1131</li>
+                    <li>• Darurat Terpadu: 112</li>
+                    <li>• Ambulans / Kemenkes: 119</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 SIAGA API - Proyek PjBL D3 Keperawatan. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logika Antarmuka & Interaktivitas -->
+    <script>
+        let pageHistory = ['home'];
+
+        function toggleMenu() {
+            const nav = document.getElementById('mainNav');
+            const toggle = document.getElementById('menuToggle');
+            const overlay = document.getElementById('navOverlay');
+            
+            nav.classList.toggle('show');
+            toggle.classList.toggle('active');
+            overlay.classList.toggle('show');
+        }
+
+        function showPage(pageId, isBack = false) {
+            const pages = document.querySelectorAll('.section-page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => link.classList.remove('active'));
+
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+
+            const activeLinks = document.querySelectorAll(`.nav-link[onclick*="${pageId}"]`);
+            activeLinks.forEach(link => link.classList.add('active'));
+
+            if (!isBack) {
+                if (pageHistory[pageHistory.length - 1] !== pageId) {
+                    pageHistory.push(pageId);
+                }
+            }
+
+            const nav = document.getElementById('mainNav');
+            if (nav.classList.contains('show')) {
+                toggleMenu();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBack() {
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const previousPage = pageHistory[pageHistory.length - 1];
+                showPage(previousPage, true);
+            } else {
+                showPage('home', true);
+            }
+        }
+
+        function checkSimulasi(skenarioId, benar, penjelasan) {
+            const hasilDiv = document.getElementById('hasil-simulasi-' + skenarioId);
+            if (benar) {
+                hasilDiv.innerHTML = `
+                    <div class="alert-box" style="background-color: #E8F5E9; border-left-color: #2E7D32; color: #1B5E20; margin-top: 1rem;">
+                        <h4 style="color:#2E7D32; margin-bottom: 0.3rem;">✅ Jawaban Tepat & Aman!</h4>
+                        <p>${penjelasan}</p>
+                    </div>
+                `;
+            } else {
+                hasilDiv.innerHTML = `
+                    <div class="alert-box" style="background-color: #FFEBEE; border-left-color: #D32F2F; color: #C62828; margin-top: 1rem;">
+                        <h4 style="color:#D32F2F; margin-bottom: 0.3rem;">❌ Tindakan Berbahaya / Kurang Tepat!</h4>
+                        <p>${penjelasan}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            const total = 10;
+            const kunci = {
+                q1: 'B', q2: 'B', q3: 'A', q4: 'C', q5: 'B',
+                q6: 'A', q7: 'B', q8: 'B', q9: 'A', q10: 'B'
+            };
+
+            const pembahasan = {
+                q1: 'Penyebab utama kebakaran di perkotaan adalah korsleting listrik dan kebocoran gas.',
+                q2: 'Segitiga api terdiri dari 3 unsur: Oksigen, Sumber Panas, dan Bahan Bakar.',
+                q3: 'P.A.S.S singkatan dari Pull, Aim, Squeeze, Sweep.',
+                q4: 'Kebakaran instalasi kelistrikan bertegangan dikategorikan sebagai Kelas C.',
+                q5: 'Mengalirkan air bersih selama 15-20 menit adalah standar medis utama untuk mendinginkan luka bakar.',
+                q6: 'Dahak berwarna hitam jelaga menandakan asap telah masuk ke saluran napas bawah (Red Flag).',
+                q7: 'Udara bersih dan kaya oksigen berada di lapisan bawah dekat lantai.',
+                q8: 'Nomor resmi Pemadam Kebakaran di Indonesia adalah 113.',
+                q9: 'Posisi Semi-Fowler (setengah duduk) sangat membantu kelancaran ekspansi paru-paru saat sesak.',
+                q10: 'STOP, DROP, and ROLL adalah teknik terbaik untuk memadamkan api yang membakar pakaian.'
+            };
+
+            let detailHTML = `<h3 style="color: var(--navy); margin-bottom: 1rem;">📊 Hasil & Pembahasan Kuis:</h3>`;
+
+            for (let i = 1; i <= total; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const key = kunci['q' + i];
+                
+                if (selected) {
+                    if (selected.value === key) {
+                        score += 10;
+                        detailHTML += `
+                            <div style="margin-bottom: 0.8rem; padding: 0.8rem; background: #E8F5E9; border-radius: 5px; border-left: 4px solid #2E7D32;">
+                                <strong>Soal ${i}: Benar (Pilihan Anda: ${key})</strong><br>
+                                <small style="color: #2E7D32;">${pembahasan['q' + i]}</small>
+                            </div>
+                        `;
+                    } else {
+                        detailHTML += `
+                            <div style="margin-bottom: 0.8rem; padding: 0.8rem; background: #FFEBEE; border-radius: 5px; border-left: 4px solid #D32F2F;">
+                                <strong>Soal ${i}: Salah (Pilihan Anda: ${selected.value} | Kunci: ${key})</strong><br>
+                                <small style="color: #C62828;">${pembahasan['q' + i]}</small>
+                            </div>
+                        `;
+                    }
+                } else {
+                    detailHTML += `
+                        <div style="margin-bottom: 0.8rem; padding: 0.8rem; background: #FFF3E0; border-radius: 5px; border-left: 4px solid #E65100;">
+                            <strong>Soal ${i}: Tidak Dijawab (Kunci: ${key})</strong><br>
+                            <small style="color: #E65100;">${pembahasan['q' + i]}</small>
+                        </div>
+                    `;
+                }
+            }
+
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.innerHTML = `
+                <div style="text-align:center; padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--navy);">
+                    <h2 style="color: var(--navy); font-size: clamp(1.5rem, 3.5vw, 2rem);">Skor Total Anda: ${score} / 100</h2>
+                    <p style="font-weight:bold; font-size: clamp(0.95rem, 2vw, 1.1rem); color: ${score >= 70 ? '#2E7D32' : '#D32F2F'};">
+                        ${score >= 80 ? '🎉 Luar Biasa! Pemahaman Kesiapsiagaan Anda Sangat Baik!' : (score >= 60 ? '👍 Cukup Baik. Pelajari kembali beberapa modul yang terlewat!' : '⚠️ Perlu Belajar Lagi. Yuk, baca ulang materi kesiapsiagaan!')}
+                    </p>
+                </div>
+            ` + detailHTML;
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateChecklist() {
+            const boxes = document.querySelectorAll('.checklist-box');
+            let checkedCount = 0;
+            boxes.forEach(box => {
+                if (box.checked) checkedCount++;
+            });
+
+            const percent = Math.round((checkedCount / boxes.length) * 100);
+            const fill = document.getElementById('progress-bar-fill');
+            const text = document.getElementById('progress-text');
+            const desc = document.getElementById('progress-desc');
+
+            fill.style.width = percent + '%';
+            text.innerText = `Tingkat Kesiapsiagaan Rumah Anda: ${percent}%`;
+
+            if (percent === 100) {
+                desc.innerText = "🌟 Sempurna! Rumah dan lingkungan Anda sudah sangat siap menghadapi risiko kebakaran.";
+                desc.style.color = "#2E7D32";
+            } else if (percent >= 50) {
+                desc.innerText = "👍 Cukup Bagus! Tinggal lengkapi beberapa poin persiapan yang belum tercentang.";
+                desc.style.color = "var(--oranye)";
+            } else {
+                desc.innerText = "⚠️ Perhatian: Tingkat kesiapsiagaan masih rendah. Segera lengkapi perlengkapan mitigasi di rumah Anda.";
+                desc.style.color = "var(--merah)";
+            }
+        }
+    </script>
+</body>
+</html>
